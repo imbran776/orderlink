@@ -8,7 +8,13 @@ Platform pemesanan grosir end-to-end yang efisien, dengan pelacakan pengiriman r
 
 ## 🚀 Demo Aplikasi
 
-**Link Demo Live:** [Belum Tersedia, Akan Diupdate Setelah Deployment]
+**Link Demo Live:** [**orderlink-wfhc.vercel.app**](https://orderlink-wfhc.vercel.app)
+
+**Deployment URLs:**
+- **Frontend (Vercel):** [orderlink-wfhc.vercel.app](https://orderlink-wfhc.vercel.app)
+- **Backend API (Railway):** [backend-production-ff65f.up.railway.app](https://backend-production-ff65f.up.railway.app)
+- **Realtime Server (Railway):** [realtime-server-production-71ca.up.railway.app](https://realtime-server-production-71ca.up.railway.app)
+
 
 ### Akun Demo (Login untuk Eksplorasi)
 
@@ -66,57 +72,71 @@ OrderLink dibangun menggunakan teknologi modern untuk performa dan skalabilitas:
 
 ## ⚙️ Panduan Instalasi Lokal
 
-Ikuti langkah-langkah berikut untuk menjalankan OrderLink di lingkungan lokal Anda.
+Untuk menjalankan OrderLink di lingkungan lokal, metode yang direkomendasikan adalah menggunakan **Docker Compose**. Ini memastikan lingkungan pengembangan yang konsisten dan terisolasi dari sistem host Anda.
 
 ### **Persyaratan Sistem:**
 
--   PHP >= 8.2
--   Node.js >= 18
--   Composer
--   MySQL >= 8.0 (atau SQLite untuk pengembangan)
+-   [Docker Desktop](https://www.docker.com/products/docker-desktop/) (termasuk Docker Engine dan Docker Compose)
 -   Git
 
 ### **Langkah-langkah Instalasi:**
 
 1.  **Clone Repositori:**
     ```bash
-    git clone https://github.com/imbran776/orderlink-repo.git # Ganti dengan repo Anda nanti
-    cd orderlink-repo
+    git clone https://github.com/imbran776/orderlink.git
+    cd orderlink
     ```
 
-2.  **Konfigurasi Backend (Laravel):**
-    ```bash
-    cd backend
-    cp .env.example .env
-    composer install
-    php artisan key:generate
-    php artisan migrate:fresh --seed # Membuat tabel dan mengisi data dummy
-    php artisan serve # Jalankan backend
-    ```
-    -   **Edit `.env`:** Sesuaikan konfigurasi database (DB_DATABASE, DB_USERNAME, DB_PASSWORD).
-
-3.  **Konfigurasi Frontend (React + Vite):**
-    ```bash
-    cd ../frontend
-    cp .env.example .env
-    npm install
-    npm run dev # Jalankan frontend
-    ```
-    -   **Edit `.env`:**
+2.  **Konfigurasi Environment (.env):**
+    -   Buat file `.env` untuk backend dan frontend:
+        ```bash
+        cp backend/.env.example backend/.env
+        cp frontend/.env.example frontend/.env
+        cp realtime/.env.example realtime/.env
         ```
+    -   Edit `backend/.env` dan `frontend/.env` untuk mengarahkan ke Docker Compose Services:
+        **`backend/.env`:**
+        ```env
+        DB_HOST=mysql
+        DB_PORT=3306
+        DB_DATABASE=orderlink
+        DB_USERNAME=root
+        DB_PASSWORD=root
+        APP_URL=http://localhost:8000
+        SANCTUM_STATEFUL_DOMAINS=localhost:5173
+        ```
+        **`frontend/.env`:**
+        ```env
         VITE_API_URL=http://localhost:8000/api
         VITE_SOCKET_URL=http://localhost:3001
         ```
 
-4.  **Konfigurasi Realtime (Node.js + Socket.IO):**
+3.  **Jalankan dengan Docker Compose:**
     ```bash
-    cd ../realtime
-    npm install
-    npm start # Jalankan server realtime
+    docker-compose up --build -d
+    ```
+    -   Ini akan membangun image Docker, membuat tiga service (backend, frontend, mysql), dan menjalankannya di background.
+
+4.  **Instal Dependensi Backend & Migrasi Database:**
+    ```bash
+    docker-compose exec backend composer install
+    docker-compose exec backend php artisan key:generate
+    docker-compose exec backend php artisan migrate:fresh --seed
+    docker-compose exec backend php artisan storage:link
     ```
 
-5.  **Akses Aplikasi:**
-    -   Buka browser Anda dan akses `http://localhost:5173` (port default Vite).
+5.  **Instal Dependensi Frontend & Realtime:**
+    ```bash
+    docker-compose exec frontend npm install
+    docker-compose exec realtime npm install
+    ```
+
+6.  **Akses Aplikasi:**
+    -   Buka browser Anda:
+        -   **Frontend:** `http://localhost:5173`
+        -   **Backend (API):** `http://localhost:8000/api`
+        -   **Realtime Server:** `http://localhost:3001`
+
 
 ---
 
