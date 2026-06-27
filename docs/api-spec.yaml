@@ -1,0 +1,198 @@
+# OrderLink API — OpenAPI 3.0 Specification
+openapi: 3.0.3
+info:
+  title: OrderLink API
+  version: 1.0.0
+  description: B2B Distribution & Delivery Platform REST API
+servers:
+  - url: http://localhost:8000/api
+    description: Development
+security:
+  - BearerAuth: []
+paths:
+  /login:
+    post:
+      summary: Login
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  example: admin@orderlink.com
+                password:
+                  type: string
+                  example: password
+      responses:
+        '200':
+          description: Success, returns user + token
+        '401':
+          description: Invalid credentials
+  /register:
+    post:
+      summary: Register user baru
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, password_confirmation, role]
+              properties:
+                name: { type: string }
+                email: { type: string }
+                password: { type: string, minLength: 8, pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)" }
+                password_confirmation: { type: string }
+                role: { type: string, enum: [retailer, driver] }
+      responses:
+        '201': { description: Created }
+        '422': { description: Validation error }
+  /orders:
+    get:
+      summary: List orders (distributor, paginated)
+      parameters:
+        - { name: status, in: query, schema: { type: string } }
+        - { name: search, in: query, schema: { type: string } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+      responses:
+        '200': { description: Success }
+        '401': { description: Unauthorized }
+    post:
+      summary: Create order (retailer)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items: { type: array, items: { type: object, properties: { product_id: { type: integer }, quantity: { type: integer, minimum: 1 } } } }
+                delivery_address: { type: string }
+                scheduled_delivery: { type: string, format: date }
+                notes: { type: string }
+      responses:
+        '201': { description: Created }
+        '422': { description: Validation error }
+  /orders/{id}/status:
+    put:
+      summary: Update order status (distributor)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [confirmed, processing, shipped, delivered, cancelled] }
+      responses:
+        '200': { description: Updated }
+        '403': { description: Forbidden }
+  /orders/{id}/assign-driver:
+    post:
+      summary: Assign driver ke order (distributor)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [driver_id]
+              properties:
+                driver_id: { type: integer }
+                estimated_arrival: { type: string, format: date }
+  /products:
+    get:
+      summary: List products (paginated)
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+        - { name: category_id, in: query, schema: { type: integer } }
+        - { name: low_stock, in: query, schema: { type: boolean } }
+        - { name: per_page, in: query, schema: { type: integer, default: 15 } }
+      responses: { '200': { description: Success } }
+    post:
+      summary: Create product (distributor)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name, sku, price, unit, stock]
+              properties:
+                category_id: { type: integer }
+                name: { type: string }
+                sku: { type: string }
+                description: { type: string }
+                price: { type: number }
+                wholesale_price: { type: number }
+                unit: { type: string }
+                stock: { type: integer }
+                min_stock: { type: integer }
+                image: { type: string, format: binary }
+  /deliveries/{id}/proof:
+    post:
+      summary: Upload bukti pengiriman (driver)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo, recipient_name]
+              properties:
+                photo: { type: string, format: binary }
+                recipient_name: { type: string }
+  /deliveries/{id}/location:
+    post:
+      summary: Update lokasi GPS (driver)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lat, lng]
+              properties:
+                lat: { type: number }
+                lng: { type: number }
+  /dashboard:
+    get:
+      summary: Dashboard stats (cached 5min)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats: { type: object }
+                  recent_orders: { type: array }
+                  monthly_sales: { type: array }
+  /health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

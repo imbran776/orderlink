@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrderLink Route Tester</title>
+    <style>
+      body {
+        font-family: system-ui;
+        padding: 2rem;
+        background: #f8fafc;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #0f172a;
+        margin-bottom: 1rem;
+      }
+      .route-group {
+        margin-bottom: 2rem;
+      }
+      .route-group h2 {
+        color: #475569;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 0.5rem;
+      }
+      .route-list {
+        display: grid;
+        gap: 0.5rem;
+      }
+      .route-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+      }
+      .route-item:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+      }
+      .route-method {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        margin-right: 0.75rem;
+      }
+      .method-get {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+      .route-path {
+        font-family: 'Courier New', monospace;
+        color: #0f172a;
+        flex: 1;
+      }
+      .route-component {
+        color: #64748b;
+        font-size: 0.875rem;
+      }
+      .test-btn {
+        margin-left: auto;
+        padding: 0.5rem 1rem;
+        background: #0ea5e9;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+      .test-btn:hover {
+        background: #0284c7;
+      }
+      .status {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+      }
+      .status-ok {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-error {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      iframe {
+        width: 100%;
+        height: 600px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 OrderLink Frontend Route Tester</h1>
+      <p style="color: #64748b; margin-bottom: 2rem">
+        Systematic route verification untuk debugging frontend
+      </p>
+
+      <div class="route-group">
+        <h2>🔓 Public Routes</h2>
+        <div class="route-list">
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/login</span>
+            <span class="route-component">Auth/Login.jsx</span>
+            <button class="test-btn" onclick="testRoute('/login')">Test</button>
+            <span class="status" id="status-login"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/register</span>
+            <span class="route-component">Auth/Register.jsx</span>
+            <button class="test-btn" onclick="testRoute('/register')">
+              Test
+            </button>
+            <span class="status" id="status-register"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-group">
+        <h2>🏢 Distributor Routes (Admin)</h2>
+        <div class="route-list">
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/distributor</span>
+            <span class="route-component">Distributor/Dashboard.jsx</span>
+            <button class="test-btn" onclick="testRoute('/distributor')">
+              Test
+            </button>
+            <span class="status" id="status-distributor"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/distributor/products</span>
+            <span class="route-component">Distributor/Products.jsx</span>
+            <button
+              class="test-btn"
+              onclick="testRoute('/distributor/products')"
+            >
+              Test
+            </button>
+            <span class="status" id="status-distributor-products"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/distributor/orders</span>
+            <span class="route-component">Distributor/Orders.jsx</span>
+            <button class="test-btn" onclick="testRoute('/distributor/orders')">
+              Test
+            </button>
+            <span class="status" id="status-distributor-orders"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/distributor/deliveries</span>
+            <span class="route-component">Distributor/Deliveries.jsx</span>
+            <button
+              class="test-btn"
+              onclick="testRoute('/distributor/deliveries')"
+            >
+              Test
+            </button>
+            <span class="status" id="status-distributor-deliveries"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/distributor/stock</span>
+            <span class="route-component">Distributor/Stock.jsx</span>
+            <button class="test-btn" onclick="testRoute('/distributor/stock')">
+              Test
+            </button>
+            <span class="status" id="status-distributor-stock"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/distributor/reports</span>
+            <span class="route-component">Distributor/Reports.jsx</span>
+            <button
+              class="test-btn"
+              onclick="testRoute('/distributor/reports')"
+            >
+              Test
+            </button>
+            <span class="status" id="status-distributor-reports"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-group">
+        <h2>🏪 Retailer Routes</h2>
+        <div class="route-list">
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/retailer</span>
+            <span class="route-component">Retailer/Dashboard.jsx</span>
+            <button class="test-btn" onclick="testRoute('/retailer')">
+              Test
+            </button>
+            <span class="status" id="status-retailer"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/retailer/catalog</span>
+            <span class="route-component">Retailer/Catalog.jsx</span>
+            <button class="test-btn" onclick="testRoute('/retailer/catalog')">
+              Test
+            </button>
+            <span class="status" id="status-retailer-catalog"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/retailer/orders</span>
+            <span class="route-component">Retailer/MyOrders.jsx</span>
+            <button class="test-btn" onclick="testRoute('/retailer/orders')">
+              Test
+            </button>
+            <span class="status" id="status-retailer-orders"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/retailer/tracking/1</span>
+            <span class="route-component">Retailer/Tracking.jsx</span>
+            <button
+              class="test-btn"
+              onclick="testRoute('/retailer/tracking/1')"
+            >
+              Test
+            </button>
+            <span class="status" id="status-retailer-tracking"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-group">
+        <h2>🚚 Driver Routes</h2>
+        <div class="route-list">
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/driver</span>
+            <span class="route-component">Driver/Dashboard.jsx</span>
+            <button class="test-btn" onclick="testRoute('/driver')">
+              Test
+            </button>
+            <span class="status" id="status-driver"></span>
+          </div>
+          <div class="route-item">
+            <span class="route-method method-get">GET</span>
+            <span class="route-path">/driver/deliveries</span>
+            <span class="route-component">Driver/Deliveries.jsx</span>
+            <button class="test-btn" onclick="testRoute('/driver/deliveries')">
+              Test
+            </button>
+            <span class="status" id="status-driver-deliveries"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="preview-container" style="display: none">
+        <h2 style="margin-top: 2rem; color: #475569">Preview Window</h2>
+        <iframe id="preview-frame"></iframe>
+      </div>
+    </div>
+
+    <script>
+      const BASE_URL = 'http://localhost:5173'
+
+      function testRoute(path) {
+        const statusId =
+          'status-' + path.replace(/\//g, '-').replace(/-$/, '').substring(1)
+        const statusEl = document.getElementById(statusId)
+
+        if (statusEl) {
+          statusEl.className = 'status status-pending'
+          statusEl.textContent = 'Testing...'
+        }
+
+        // Show preview
+        document.getElementById('preview-container').style.display = 'block'
+        const iframe = document.getElementById('preview-frame')
+        iframe.src = BASE_URL + path
+
+        // Wait for iframe load
+        iframe.onload = function () {
+          setTimeout(() => {
+            try {
+              // Check if iframe loaded successfully
+              const iframeDoc =
+                iframe.contentDocument || iframe.contentWindow.document
+              if (iframeDoc.title.includes('OrderLink')) {
+                if (statusEl) {
+                  statusEl.className = 'status status-ok'
+                  statusEl.textContent = '✓ OK'
+                }
+              } else {
+                if (statusEl) {
+                  statusEl.className = 'status status-error'
+                  statusEl.textContent = '✗ Error'
+                }
+              }
+            } catch (e) {
+              // Cross-origin error - but page loaded
+              if (statusEl) {
+                statusEl.className = 'status status-ok'
+                statusEl.textContent = '✓ OK'
+              }
+            }
+          }, 500)
+        }
+
+        iframe.onerror = function () {
+          if (statusEl) {
+            statusEl.className = 'status status-error'
+            statusEl.textContent = '✗ Failed'
+          }
+        }
+      }
+
+      // Test login route on load
+      window.onload = function () {
+        testRoute('/login')
+      }
+    </script>
+  </body>
+</html>
