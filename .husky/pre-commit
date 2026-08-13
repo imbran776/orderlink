@@ -1,0 +1,36 @@
+#!/bin/sh
+# Scan staged text files for common secret patterns. Never print matched values.
+python3 - <<'PY'
+from __future__ import annotations
+
+import re
+import subprocess
+import sys
+
+patterns = {
+    "AWS access key": r"\bAKIA[0-9A-Z]{16}\b",
+    "private key": r"-----BEGIN(?: [A-Z]+)? PRIVATE KEY-----",
+    "JWT": r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b",
+    "GitHub token": r"\b(?:ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{82})\b",
+    "Stripe key": r"\b(?:sk|pk)_(?:live|test)_[0-9A-Za-z]{24,}\b",
+}
+
+files = subprocess.check_output(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR"], text=True).splitlines()
+findings = []
+for path in files:
+    try:
+        content = subprocess.check_output(["git", "show", f":{path}"], text=True, stderr=subprocess.DEVNULL)
+    except (subprocess.CalledProcessError, UnicodeDecodeError):
+        continue
+    for line_number, line in enumerate(content.splitlines(), 1):
+        for label, pattern in patterns.items():
+            if re.search(pattern, line):
+                findings.append(f"{path}:{line_number}: {label} [REDACTED]")
+
+if findings:
+    print("Secret scan blocked this commit:", file=sys.stderr)
+    print("\n".join(findings), file=sys.stderr)
+    sys.exit(1)
+
+print("Secret scan passed: no suspicious credential patterns in staged files.")
+PY
